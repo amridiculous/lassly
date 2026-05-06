@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd output/lassly && npm install && npm run build",
+  "outputDirectory": "output/lassly/dist",
+  "installCommand": "echo skip"
+}
