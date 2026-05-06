@@ -26,13 +26,35 @@ Follow the agent's instructions exactly for that phase of work. Agent sequence:
 ---
 
 ## Project Status
-The React app has not been scaffolded yet. When building, create `output/` as the project root using Vite + React + Tailwind + GSAP. All source code lives in `output/`.
+- **Phase:** Development (React app scaffolded, deployed to Vercel)
+- **Design spec:** v2.0 active — see client context below
+- **Next:** Continue building out sections per layout concept
+
+## Infrastructure
+
+| Item | Value |
+|------|-------|
+| GitHub repo | `https://github.com/amridiculous/lassly.git` |
+| Active branch | `lassly` (not `main`) |
+| Vercel URL | `https://lassly.vercel.app` |
+| Vercel config | `vercel.json` at repo root — custom build pointing to `output/lassly/` |
+
+**Vercel `vercel.json` (repo root) — do not change this structure:**
+```json
+{
+  "buildCommand": "cd output/lassly && npm install && npm run build",
+  "outputDirectory": "output/lassly/dist",
+  "installCommand": "echo skip"
+}
+```
+> `rootDirectory` is NOT a valid `vercel.json` field — never add it. Set via Vercel dashboard if needed.
 
 ## Stack & Commands
 
-Once scaffolded, from the `output/` directory:
+The Vite app lives at `output/lassly/` — always run commands from there:
 
 ```bash
+cd output/lassly
 npm run dev       # start Vite dev server
 npm run build     # production build
 npm run preview   # preview production build
@@ -49,7 +71,7 @@ Single-page app, single route `/`. No router needed. Structure sections as separ
 
 **GSAP usage:** Use `gsap.context()` with a ref for all animations (cleanup on unmount). ScrollTrigger for parallax and scroll-reveal. Always add `prefers-reduced-motion` check before registering any timeline.
 
-**Images:** All artwork is in `/input/artwork/` (project root, not `output/`). Reference them via Vite's `new URL('../../../input/artwork/filename.jpg', import.meta.url).href` or copy into `output/public/artwork/` at scaffold time.
+**Images:** All artwork is in `/input/artwork/` (project root, not `output/lassly/`). Reference them via Vite's `new URL('../../../input/artwork/filename.jpg', import.meta.url).href` or copy into `output/lassly/public/artwork/` at scaffold time.
 
 **Tailwind config:** Extend with the project palette — `cream: '#F5F0E8'`, `ochre`, `cobalt`, `cardboard`. Set `fontFamily.script` to the chosen Google Font (Caveat recommended) and `fontFamily.sans` to a humanist sans (Inter or DM Sans).
 
