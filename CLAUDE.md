@@ -4,6 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Agentic Workflow
+
+Before starting any work on this project, read the relevant agent file from:
+`../../my-agency/agents/`
+
+Follow the agent's instructions exactly for that phase of work. Agent sequence:
+
+| Phase | Agent file | When to use |
+|-------|-----------|-------------|
+| 1 — Discovery | `planning-agent.md` | Starting a new project or major feature. Run rounds in order, wait for answers before proceeding. Output goes to `client.md`. |
+| 2 — Design | `design-agent.md` | After planning is confirmed. Do not start until `client.md` exists. |
+| 3 — Design QA | `design-qa-agent.md` | After design spec is written. Before any code. |
+| 4 — Development | `developer-agent.md` | After design QA is signed off. |
+| 5 — Code Review | `code-reviewer-agent.md` | After a dev pass is complete. |
+| 6 — QA & Testing | `qa-test-agent.md` | Before any deploy or handoff. |
+
+**Rule:** Never skip a phase or start a downstream phase without the upstream output confirmed.  
+**Rule:** If a task is ambiguous about which phase it belongs to, default to the earliest unfinished phase.
+
+---
+
 ## Project Status
 The React app has not been scaffolded yet. When building, create `output/` as the project root using Vite + React + Tailwind + GSAP. All source code lives in `output/`.
 
