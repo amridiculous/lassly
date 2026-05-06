@@ -1,3 +1,39 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+## Project Status
+The React app has not been scaffolded yet. When building, create `output/` as the project root using Vite + React + Tailwind + GSAP. All source code lives in `output/`.
+
+## Stack & Commands
+
+Once scaffolded, from the `output/` directory:
+
+```bash
+npm run dev       # start Vite dev server
+npm run build     # production build
+npm run preview   # preview production build
+```
+
+## Architecture
+
+Single-page app, single route `/`. No router needed. Structure sections as separate React components mounted in order in `App.jsx`:
+- `<Hero />` — full-viewport, scattered artwork images with GSAP drift-in animations
+- `<Works />` — organic/loose layout, no grid
+- `<About />` — two-column desktop, bio text verbatim from spec
+- `<Current />` — informal note on current practice
+- `<Contact />` — email link only, no form
+
+**GSAP usage:** Use `gsap.context()` with a ref for all animations (cleanup on unmount). ScrollTrigger for parallax and scroll-reveal. Always add `prefers-reduced-motion` check before registering any timeline.
+
+**Images:** All artwork is in `/input/artwork/` (project root, not `output/`). Reference them via Vite's `new URL('../../../input/artwork/filename.jpg', import.meta.url).href` or copy into `output/public/artwork/` at scaffold time.
+
+**Tailwind config:** Extend with the project palette — `cream: '#F5F0E8'`, `ochre`, `cobalt`, `cardboard`. Set `fontFamily.script` to the chosen Google Font (Caveat recommended) and `fontFamily.sans` to a humanist sans (Inter or DM Sans).
+
+---
+
 # Client Context — LASSLY
 ## Version: 2.0 (redesign — single page, warm/playful direction)
 ## Previous spec: reviews/design-spec-v1.1-archived.md
