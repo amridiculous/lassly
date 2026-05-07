@@ -5,17 +5,6 @@ import { OBJECTS } from '../config/objects'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const NAV_ITEMS = [
-  { label: 'About',             href: '#about',   dropdown: false },
-  { label: 'Miniatures',        href: '#',        dropdown: true  },
-  { label: 'On Growth',         href: '#',        dropdown: false },
-  { label: 'On paper',          href: '#',        dropdown: true  },
-  { label: 'Blog',              href: '#',        dropdown: true  },
-  { label: 'Free Downloadable', href: '#',        dropdown: false },
-  { label: 'Shop',              href: '#',        dropdown: false },
-  { label: 'Contact',           href: '#contact', dropdown: false },
-]
-
 // Paper rip variants — noise shaped by filter type, frequency sweep, and duration
 const RIP_VARIANTS = {
   building:      { dur: 0.42, f0: 600,  f1: 200,  q: 0.7, vol: 0.32 }, // slow cardboard tear
@@ -71,14 +60,25 @@ function playSound(src) {
 
 export default function Hero() {
   const centerRef    = useRef(null)
+  const aboutRef     = useRef(null)
   const wrapperRefs  = useRef([])
   const parallaxRefs = useRef([])
 
-  function handleNavClick(href) {
-    return (e) => {
-      e.preventDefault()
-      if (href !== '#') document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
-    }
+  function handleObjectClick(href) {
+    if (href && href !== '#') document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  function handleAboutHover() {
+    if (!aboutRef.current) return
+    gsap.killTweensOf(aboutRef.current, 'rotation')
+    gsap.to(aboutRef.current, {
+      rotation: 14,
+      duration: 0.2,
+      ease: 'power2.out',
+      yoyo: true,
+      repeat: 1,
+      onStart: () => playSound(''),
+    })
   }
 
   function handleObjectHover(i) {
@@ -92,7 +92,7 @@ export default function Hero() {
       ease: 'power2.out',
       yoyo: true,
       repeat: 1,
-      onStart: () => playSound(OBJECTS[i].src),
+      onStart: () => playSound(''),
     })
   }
 
@@ -128,6 +128,18 @@ export default function Hero() {
         })
       })
 
+      if (aboutRef.current) {
+        gsap.set(aboutRef.current, { rotation: 0 })
+        gsap.to(aboutRef.current, {
+          y: '+=5',
+          duration: 4.8,
+          ease: 'sine.inOut',
+          repeat: -1,
+          yoyo: true,
+          delay: 0.9,
+        })
+      }
+
       parallaxRefs.current.forEach((el, i) => {
         if (!el || !OBJECTS[i]) return
         const speed = OBJECTS[i].zIndex === 1 ? -55 : OBJECTS[i].zIndex === 2 ? -32 : -14
@@ -152,58 +164,13 @@ export default function Hero() {
       id="hero"
       style={{ position: 'relative', height: '100svh', overflow: 'hidden', background: 'var(--bg)' }}
     >
-      {/* Top nav bar */}
-      <nav
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 'clamp(0.8rem, 2vw, 2rem)',
-          padding: '1.4rem 2rem',
-          flexWrap: 'wrap',
-        }}
-      >
-        {NAV_ITEMS.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            onClick={handleNavClick(item.href)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 400,
-              fontSize: '0.78rem',
-              color: 'var(--ink)',
-              textDecoration: 'none',
-              letterSpacing: '0.05em',
-              whiteSpace: 'nowrap',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.4' }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
-          >
-            {item.dropdown && (
-              <svg width="8" height="6" viewBox="0 0 10 7" fill="none" style={{ flexShrink: 0, opacity: 0.5 }}>
-                <path d="M1 1L5 5.5L9 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-              </svg>
-            )}
-            {item.label}
-          </a>
-        ))}
-      </nav>
-
-      {/* Floating objects */}
+      {/* Scribble nav objects — outer div: rotation + float y; inner div: parallax y */}
       {OBJECTS.map((obj, i) => (
         <div
-          key={obj.src}
+          key={obj.label ?? i}
           ref={(el) => { wrapperRefs.current[i] = el }}
           onMouseEnter={() => handleObjectHover(i)}
+          onClick={() => handleObjectClick(obj.href)}
           style={{
             position: 'absolute',
             top: obj.top,
@@ -213,19 +180,31 @@ export default function Hero() {
             userSelect: 'none',
           }}
         >
-          <img
+          <div
             ref={(el) => { parallaxRefs.current[i] = el }}
-            src={`/assets/artwork/${obj.src}`}
-            alt=""
-            data-float
             style={{
-              width: obj.width,
-              height: 'auto',
-              display: 'block',
-              mixBlendMode: obj.blend || 'normal',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.55rem',
               pointerEvents: 'none',
             }}
-          />
+          >
+            <img src={obj.icon} alt="" style={{ width: obj.width, height: 'auto', display: 'block' }} />
+            {obj.label && (
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '0.6rem',
+                fontWeight: 400,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--muted)',
+                whiteSpace: 'nowrap',
+              }}>
+                {obj.label}
+              </span>
+            )}
+          </div>
         </div>
       ))}
 
@@ -240,6 +219,32 @@ export default function Hero() {
           width: 'min(90vw, 520px)',
         }}
       >
+        {/* About — centered above logo, clickable, float + hover rotation */}
+        <div
+          ref={aboutRef}
+          onClick={() => handleObjectClick('#about')}
+          onMouseEnter={handleAboutHover}
+          style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            gap: '0.45rem', marginBottom: '1.6rem',
+            cursor: 'pointer', pointerEvents: 'auto',
+          }}
+        >
+          <img
+            src="/assets/icons/about.svg"
+            alt=""
+            style={{ width: 'clamp(80px, 13vw, 150px)', height: 'auto', display: 'block' }}
+          />
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '0.6rem', fontWeight: 400,
+            letterSpacing: '0.18em', textTransform: 'uppercase',
+            color: 'var(--muted)', whiteSpace: 'nowrap',
+          }}>
+            About
+          </span>
+        </div>
+
         <img
           src="/assets/brand-assets/logo.png"
           alt="Lassly"

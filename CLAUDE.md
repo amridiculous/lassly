@@ -57,23 +57,43 @@ The Vite app lives at `output/lassly/` — always run commands from there:
 cd output/lassly
 npm run dev       # start Vite dev server
 npm run build     # production build
+npm run lint      # ESLint
 npm run preview   # preview production build
 ```
 
 ## Architecture
 
-Single-page app, single route `/`. No router needed. Structure sections as separate React components mounted in order in `App.jsx`:
-- `<Hero />` — full-viewport, scattered artwork images with GSAP drift-in animations
-- `<Works />` — organic/loose layout, no grid
-- `<About />` — two-column desktop, bio text verbatim from spec
-- `<Current />` — informal note on current practice
-- `<Contact />` — email link only, no form
+Single-page app, single route `/`. No router needed. `App.jsx` mounts sections in order:
 
-**GSAP usage:** Use `gsap.context()` with a ref for all animations (cleanup on unmount). ScrollTrigger for parallax and scroll-reveal. Always add `prefers-reduced-motion` check before registering any timeline.
+| Component | Status | Notes |
+|-----------|--------|-------|
+| `<Hero />` | Built | Full-viewport, GSAP drift-in + parallax + paper-rip sound on hover |
+| `<Works />` | Built (empty) | Reads from `src/config/works.js` — `WORKS` array is currently `[]` |
+| `<About />` | Built, **not mounted** | Exists at `src/components/About.jsx`, needs to be added to `App.jsx` |
+| `<Currently />` | Built | 2-col grid, expects `/assets/about/current.jpg` |
+| `<Contact />` | Built | Email link only + footer |
 
-**Images:** All artwork is in `/input/artwork/` (project root, not `output/lassly/`). Reference them via Vite's `new URL('../../../input/artwork/filename.jpg', import.meta.url).href` or copy into `output/lassly/public/artwork/` at scaffold time.
+`Intro.jsx` also exists in components but is not mounted.
 
-**Tailwind config:** Extend with the project palette — `cream: '#F5F0E8'`, `ochre`, `cobalt`, `cardboard`. Set `fontFamily.script` to the chosen Google Font (Caveat recommended) and `fontFamily.sans` to a humanist sans (Inter or DM Sans).
+**Config-driven content:** Add/edit content via config files, not component internals:
+- `src/config/objects.js` — hero floating artwork objects (position, size, float params, blend mode)
+- `src/config/works.js` — portfolio works array (title, year, medium, aspect ratio, file)
+
+**Images:** Artwork is served from `public/assets/artwork/` as `/assets/artwork/filename.png`. About section images go in `public/assets/about/` (expected: `portrait.jpg`, `current.jpg`). Source files in `/input/artwork/` must be manually copied to `public/assets/artwork/` — Vite does not resolve outside `output/lassly/`.
+
+**CSS custom properties** (defined in `src/index.css`, do not use Tailwind classes for these):
+- `--bg: #E8E5DF` — warm cream background
+- `--ink: #0D0D0B` — near-black text
+- `--muted: #8A8880` — subdued labels and captions
+- `--border: rgba(13, 13, 11, 0.14)` — hairline dividers
+
+**Tailwind v4** — no `tailwind.config.js`. Use the CSS-based import (`@import "tailwindcss"` in `index.css`). Custom tokens are CSS variables, not Tailwind theme extensions.
+
+**Fonts** (loaded via Google Fonts in `index.css`): DM Sans (body, labels), Cormorant Garamond italic (section display headings in About), Space Grotesk (imported but currently unused).
+
+**GSAP usage:** Use `gsap.context()` with a section ref for scoping (cleanup on unmount). Mark scroll-reveal targets with `data-reveal` attribute — components use `gsap.from('[data-reveal]', ...)` within their context. Always check `prefers-reduced-motion` before registering animations.
+
+**Sound:** Hero uses Web Audio API (no library) for paper-rip sounds on object hover. Variant config is in `RIP_VARIANTS` at the top of `Hero.jsx`, keyed by image filename substring.
 
 ---
 
